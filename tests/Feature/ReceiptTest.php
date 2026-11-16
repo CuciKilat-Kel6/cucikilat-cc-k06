@@ -76,12 +76,12 @@ class ReceiptTest extends TestCase
         $this->get(route('orders.receipt', $order))->assertOk()->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)->assertDontSee('<img src=x onerror=alert(1)>', false)->assertDontSee('<script>alert(1)</script>', false);
     }
 
-    public function test_receipt_warns_when_qr_points_to_local_domain(): void
+    public function test_receipt_keeps_technical_instructions_out_of_customer_view(): void
     {
         config(['app.url' => 'http://cucikilat.test']);
         $this->actingAs(User::factory()->create());
         $order = LaundryOrder::factory()->create();
-        $this->get(route('orders.receipt', $order))->assertOk()->assertSee('HP pelanggan belum bisa membukanya.');
+        $this->get(route('orders.receipt', $order))->assertOk()->assertSee($order->code)->assertSee('SCAN UNTUK LACAK CUCIAN')->assertDontSee('APP_URL')->assertDontSee('HP pelanggan belum bisa membukanya.');
     }
 
     public function test_same_submission_key_returns_same_order_without_duplicate_charge(): void
