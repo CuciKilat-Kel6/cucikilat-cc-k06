@@ -6,14 +6,15 @@
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="no-referrer">
     <title>Struk {{ $order->code }} — CuciKilat</title>
-    <link rel="stylesheet" href="{{ asset('receipt.css') }}">
+    <link rel="stylesheet" href="{{ asset('receipt.css') }}?v={{ filemtime(public_path('receipt.css')) }}">
     <link rel="icon" href="{{ asset('bolt.svg') }}" type="image/svg+xml">
-    <script src="{{ asset('receipt.js') }}" defer></script>
+    <script src="{{ asset('receipt.js') }}?v={{ filemtime(public_path('receipt.js')) }}" defer></script>
+    <style id="receipt-page-size">@page { size: 80mm 297mm; margin: 4mm; }</style>
 </head>
-<body>
+<body data-paper="80">
     <div class="receipt-toolbar">
         <a href="{{ route('orders.show',$order) }}">← Kembali ke order</a>
-        <button type="button" id="print-receipt">Cetak / simpan PDF ↗</button>
+        <div class="paper-controls"><label for="paper-size">Ukuran kertas<select id="paper-size"><option value="80" selected>Struk 80 mm</option><option value="58">Struk 58 mm</option><option value="a4">A4</option></select></label><button type="button" id="print-receipt">Cetak / simpan PDF ↗</button></div>
     </div>
     <main class="receipt" aria-label="Struk laundry">
         <header class="receipt-brand">
