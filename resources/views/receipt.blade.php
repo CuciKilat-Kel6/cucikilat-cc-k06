@@ -15,13 +15,6 @@
         <a href="{{ route('orders.show',$order) }}">← Kembali ke order</a>
         <button type="button" id="print-receipt">Cetak / simpan PDF ↗</button>
     </div>
-    <div class="screen-note">
-        <strong>Satu struk, semua info cucian.</strong>
-        <p>Cetak untuk pelanggan atau pilih “Save as PDF” di dialog cetak. Cocok untuk kertas struk 80 mm maupun A4. Matikan header/footer browser agar hasil rapi. Jika dialog cetak tidak muncul di browser dalam aplikasi, buka struk ini di Chrome, Edge, Brave, atau Safari.</p>
-        @if($localTracking)
-            <p class="local-note">QR ini masih memakai alamat lokal <b>{{ parse_url($trackingUrl, PHP_URL_HOST) }}</b>. HP pelanggan belum bisa membukanya. Saat deploy, sesuaikan APP_URL ke alamat web yang bisa diakses pelanggan, lalu cetak ulang.</p>
-        @endif
-    </div>
     <main class="receipt" aria-label="Struk laundry">
         <header class="receipt-brand">
             <img src="{{ asset('bolt.svg') }}" width="29" height="38" alt="Logo petir">

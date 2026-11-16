@@ -26,8 +26,7 @@ class OrderReceipt
         $qr = new QrCode(data: $url, encoding: new Encoding('ISO-8859-1'), errorCorrectionLevel: ErrorCorrectionLevel::Medium, size: 360, margin: 32);
         $base = $order->service_type === 'satuan' ? $order->unit_price * $order->quantity * 100 : intdiv($order->unit_price * $order->billable_grams, 10);
         $extra = $order->service_type === 'express' ? intdiv($base, 2) : 0;
-        $host = (string) parse_url($url, PHP_URL_HOST);
 
-        return ['trackingUrl' => $url, 'qrDataUri' => (new PngWriter)->write($qr)->getDataUri(), 'baseAmount' => $base / 100, 'expressAmount' => $extra / 100, 'roundingAmount' => ($order->total * 100 - $base - $extra) / 100, 'localTracking' => in_array($host, ['localhost', '127.0.0.1', '[::1]'], true) || str_ends_with($host, '.test') || str_ends_with($host, '.localhost')];
+        return ['trackingUrl' => $url, 'qrDataUri' => (new PngWriter)->write($qr)->getDataUri(), 'baseAmount' => $base / 100, 'expressAmount' => $extra / 100, 'roundingAmount' => ($order->total * 100 - $base - $extra) / 100];
     }
 }
