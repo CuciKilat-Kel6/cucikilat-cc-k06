@@ -1,0 +1,3 @@
+@extends('layout')
+@section('title','Masuk petugas — CuciKilat')
+@section('content')<div class="narrow"><div class="eyebrow">Area petugas / 006</div><h1>SHIFT DIMULAI.</h1><p class="muted">Masuk untuk urus layanan, cucian, dan pemasukan.</p><div class="panel"><form method="post" action="{{ route('login.submit') }}">@csrf<label>Email petugas<input type="email" name="email" value="{{ old('email') }}" autocomplete="username" required autofocus></label><label>Password<input type="password" name="password" autocomplete="current-password" required></label><button class="btn dark" style="width:100%">Masuk ke meja order ↗</button></form></div><p class="hint">Pelanggan? <a class="text-link" href="{{ route('track') }}">Lacak cucian di sini.</a></p></div>@endsection

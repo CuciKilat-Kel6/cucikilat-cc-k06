@@ -1,0 +1,1 @@
+<ol class="timeline">@foreach(\App\Models\LaundryOrder::STATUSES as $status) @php($entry=collect($order->history)->firstWhere('status',$status))<li @class(['done'=>$entry])><strong>{{ str_replace('_',' ',$status) }}</strong>@if($entry)<small>{{ \Carbon\Carbon::parse($entry['at'])->timezone('Asia/Jakarta')->format('d M Y · H:i') }} WIB</small>@endif</li>@endforeach</ol>
