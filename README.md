@@ -103,7 +103,7 @@ DB_USERNAME=akun_mysql_lokalmu
 DB_PASSWORD=password_mysql_lokalmu
 ```
 
-`DB_PORT` mengikuti MySQL di laptop masing-masing. Di laptop Ryan, instance khusus proyek memakai **13316**. Teman kelompok biasanya memakai **3306**; tidak perlu meniru port laptop Ryan.
+`DB_PORT` mengikuti MySQL di laptop masing-masing. Pengaturan FlyEnv di laptop Ryan sekarang memakai **3306**, sama seperti port MySQL standar. Gunakan akun database masing-masing; password lokal tidak dibagikan lewat Git.
 
 **Jangan push `.env`, `.env.testing`, password, atau data MySQL.** File tersebut sudah di-ignore. Di server deploy nanti, set `APP_ENV=production` dan `APP_DEBUG=false`.
 
@@ -152,14 +152,33 @@ php artisan serve --host=127.0.0.1 --port=8000
 
 Buka **http://127.0.0.1:8000**. Masuk petugas di **http://127.0.0.1:8000/login** dengan akun yang dibuat pada langkah 5. Biarkan terminal server tetap terbuka; `Ctrl+C` untuk berhenti.
 
-Khusus **laptop Ryan**, data MySQL lokal sudah disiapkan di `storage/app/private/mysql` dan dapat dimulai bersama web dengan:
+### Membuka lewat FlyEnv + VS Code
+
+Di laptop Ryan, situs sudah terdaftar sebagai **http://cucikilat.test**. Nginx, PHP-FPM 8.4, dan MySQL 8.4 dikelola FlyEnv, jadi **tidak perlu `php artisan serve` atau `composer local`** untuk membuka domain ini.
+
+1. Buka FlyEnv dan nyalakan **Nginx**, **PHP-FPM 8.4**, serta **MySQL**.
+2. Buka **Site → PHP Projects**. Untuk laptop teman, tambahkan situs sendiri:
+   - Hostname: `cucikilat.test`.
+   - Document Root: folder **public/** di dalam hasil clone proyek.
+   - PHP Version: **8.4**.
+   - Port: **80**.
+   - Nginx URL Rewrite: template **laravel**.
+3. Sesuaikan `.env`: `APP_URL=http://cucikilat.test`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, dan akun MySQL milikmu.
+4. Jalankan `php artisan optimize:clear` dari terminal proyek setelah mengganti konfigurasi.
+5. Buka folder proyek di VS Code. Di laptop Ryan: `/Users/ryanalfin/Sites/CC/cucikilat`.
+6. Buka **http://cucikilat.test**; login di **http://cucikilat.test/login**.
+
+Contoh membuka proyek lewat terminal:
 
 ```bash
-cd /Users/ryanalfin/Sites/CC/cucikilat
-composer local
+code /Users/ryanalfin/Sites/CC/cucikilat
 ```
 
-`composer local` memakai MySQL FlyEnv yang sudah terpasang, port 13316, dan hanya membuka server ke loopback laptop. Teman yang clone repo menggunakan MySQL masing-masing dan `php artisan serve`, bukan menyalin folder data MySQL Ryan.
+Terminal VS Code dapat dipakai untuk `php artisan migrate:status`, `php artisan db:seed`, `composer test`, dan `composer lint`. Server website tetap dijalankan oleh FlyEnv, sehingga terminal tidak perlu dibiarkan menjalankan server PHP.
+
+Data contoh serta akun lokal Ryan dipindahkan ke database CuciKilat di MySQL FlyEnv. Salinan database sebelum perpindahan disimpan hanya di `storage/app/private/` dan tidak masuk Git. Database aplikasi lain tidak diubah.
+
+Jika ingin memakai port 8000 sebagai alternatif, nyalakan MySQL FlyEnv lebih dulu lalu jalankan `composer local`. Perintah ini sekarang hanya menyalakan server PHP dan memakai koneksi database dari `.env`.
 
 ## 7. Cara memakai aplikasi
 
