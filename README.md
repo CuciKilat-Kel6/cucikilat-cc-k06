@@ -1,4 +1,4 @@
-# ⚡ CuciKilat — Kelompok 6
+# ⚡ CuciKilat - Kelompok 6
 
 Website laundry untuk Tugas Besar 1 Cloud Computing, studi kasus **K06 — CuciKilat**. Dibuat pakai **Laravel 13, PHP 8.4, MySQL, dan Blade**. Tema tampilan retro kuning, dengan logo petir dan nota laundry.
 
@@ -6,10 +6,10 @@ Bagian ini mencakup aplikasi/backend. **Docker, Jenkins, Docker Hub, webhook, da
 
 ## Anggota
 
-- Alifia Mareta Cahyani — 102062400086
-- Ihtada Haqi Prasetyo — 102062400060
-- Ryan Alfin Saputra — 102062400072 — Backend / Tech Lead
-- Sulthoni Prima Rafasya — 102062400110
+- Alifia Mareta Cahyani - 102062400086
+- Ihtada Haqi Prasetyo - 102062400060
+- Ryan Alfin Saputra - 102062400072 - Backend / Tech Lead
+- Sulthoni Prima Rafasya - 102062400110
 
 Peran anggota lain disesuaikan lagi dengan pembagian kelompok. Setiap anggota tetap harus punya commit sendiri dan mengerjakan perubahan lewat PR.
 
