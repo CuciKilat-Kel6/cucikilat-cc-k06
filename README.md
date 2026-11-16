@@ -211,8 +211,8 @@ Jika Laragon/XAMPP memakai virtual host dengan Document Root ke **public/**, art
 1. Login petugas, buka **Layanan** jika perlu mengubah tarif.
 2. Buka **Order → Terima order**. Isi pelanggan, telepon, layanan, dan berat atau jumlah item.
 3. Simpan, lalu klik **Cetak struk / QR** pada halaman detail order.
-4. Struk menampilkan nama, kontak, layanan, berat aktual/tagihan atau jumlah item, tarif dasar, subtotal, tambahan express 50%, total, pembayaran, estimasi selesai, kode order, dan **QR/tautan langsung ke pelacakan**.
-5. Klik **Cetak / simpan PDF** untuk mencetak ke kertas 80 mm/A4 atau memilih **Save as PDF**. Matikan header/footer browser. Printer fisik belum diuji; sesuaikan ukuran kertas di dialog printer. Browser dalam aplikasi tertentu tidak menampilkan dialog cetak; jika itu terjadi, buka alamat struk di Chrome/Edge/Brave/Safari.
+4. Pilih ukuran **Struk 80 mm**, **Struk 58 mm**, atau **A4**. Lebar kertas dan panjang halaman struk diatur dari pilihan serta tinggi isi nota. Struk menampilkan nama, kontak, layanan, berat aktual/tagihan atau jumlah item, tarif dasar, subtotal, tambahan express 50%, total, pembayaran, estimasi selesai, kode order, dan **QR/tautan langsung ke pelacakan**.
+5. Klik **Cetak / simpan PDF** untuk mencetak ke kertas 80 mm/58 mm/A4 atau memilih **Save as PDF**. Matikan header/footer browser. Printer fisik belum diuji; sesuaikan ukuran kertas di dialog printer. Browser dalam aplikasi tertentu tidak menampilkan dialog cetak; jika itu terjadi, buka alamat struk di Chrome/Edge/Brave/Safari.
 6. Berikan struk atau file PDF ke pelanggan. Mereka cukup scan QR, tanpa mencatat kode atau login. Tombol **Salin tautan** juga tersedia; pada browser HTTP yang membatasi clipboard, isian akan dipilih agar bisa disalin dengan Ctrl+C/Cmd+C.
 7. Majukan status sesuai proses laundry. Ketika uang diterima, tekan **Catat sudah dibayar** dan konfirmasikan. Tombol ini hanya mencatat pembayaran, bukan payment gateway.
 8. Setelah cucian siap dan lunas, konfirmasikan penyerahan ke **DIAMBIL**. Cocokkan identitas pelanggan oleh petugas; QR hanya untuk melacak, bukan bukti identitas. Order kemudian terkunci.
