@@ -15,6 +15,12 @@ return [
     |
     */
 
+    'local_demo' => [
+        'enabled' => env('LOCAL_DEMO_LOGIN', false),
+        'email' => env('LOCAL_DEMO_EMAIL', ''),
+        'password' => env('LOCAL_DEMO_PASSWORD', ''),
+    ],
+
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),

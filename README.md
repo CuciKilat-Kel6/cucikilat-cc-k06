@@ -180,6 +180,12 @@ Data contoh serta akun lokal Ryan dipindahkan ke database CuciKilat di MySQL Fly
 
 Jika ingin memakai port 8000 sebagai alternatif, nyalakan MySQL FlyEnv lebih dulu lalu jalankan `composer local`. Perintah ini sekarang hanya menyalakan server PHP dan memakai koneksi database dari `.env`.
 
+### Isian login otomatis untuk demo lokal
+
+Di laptop Ryan, email dan password akun demo sudah terisi otomatis di halaman login; tinggal klik **Masuk ke meja order**. Nilainya disimpan hanya di `.env` lokal, tidak di repository.
+
+Untuk mengaktifkan di laptop sendiri, tambahkan `LOCAL_DEMO_LOGIN=true`, `LOCAL_DEMO_EMAIL` dan `LOCAL_DEMO_PASSWORD` di `.env` dengan akun petugas yang sudah dibuat. Jalankan `php artisan optimize:clear` setelah mengubahnya. Fitur ini hanya mengisi form ketika `APP_ENV=local` dan pengunjung datang dari loopback laptop. Mode production dan pengunjung dari luar laptop tetap menerima form kosong. Menonaktifkan: `LOCAL_DEMO_LOGIN=false`.
+
 ## 7. Cara memakai aplikasi
 
 1. Login petugas, buka **Layanan** jika perlu mengubah tarif.
@@ -233,7 +239,7 @@ composer test
 
 Pastikan `DB_DATABASE=cucikilat_test`. Test memakai `RefreshDatabase` dan mengelola ulang tabel pada database testing. Jangan arahkan database testing ke data aplikasi.
 
-Saat ini ada **27 kasus test**, termasuk minimum 2 kg, batas pembulatan 0,5 kg, surcharge express, estimasi reguler/express, harga satuan, penolakan berat nol, penguncian order DIAMBIL, urutan status, pembayaran, laporan harian, layanan, login, pelacakan tanpa data pribadi, escaping HTML, dan respons health 200/503.
+Saat ini ada **30 kasus test**, termasuk minimum 2 kg, batas pembulatan 0,5 kg, surcharge express, estimasi reguler/express, harga satuan, penolakan berat nol, penguncian order DIAMBIL, urutan status, pembayaran, laporan harian, layanan, login, pelacakan tanpa data pribadi, escaping HTML, dan respons health 200/503.
 
 Untuk laporan JUnit bila diperlukan tim QA:
 
