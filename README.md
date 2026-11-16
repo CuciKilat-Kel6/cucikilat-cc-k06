@@ -22,6 +22,7 @@ Peran anggota lain disesuaikan lagi dengan pembagian kelompok. Setiap anggota te
 | Daftar, pencarian, dan filter order | `/admin` |
 | Buat order dengan layanan dan berat/jumlah | `/admin/orders/create` |
 | Detail, edit, pembayaran, dan pembaruan status | `/admin/orders/{id}` |
+| Struk cetak/simpan PDF dan QR pelacakan | `/admin/orders/{id}/receipt` |
 | CRUD layanan reguler, express, dan satuan | `/admin/services` |
 | Pelacakan publik dengan kode order | `/lacak` |
 | Laporan pendapatan harian | `/admin/report` |
@@ -48,7 +49,7 @@ Keputusan tambahan yang tidak dirinci PDF:
 
 ## 1. Siapkan alatnya
 
-- PHP **8.4** dengan ekstensi PDO MySQL, BCMath, Mbstring, XML/DOM, Ctype, Fileinfo, OpenSSL, Tokenizer, Session, dan cURL.
+- PHP **8.4** dengan ekstensi GD (QR struk), PDO MySQL, BCMath, Mbstring, XML/DOM, Ctype, Fileinfo, OpenSSL, Tokenizer, Session, dan cURL.
 - Composer 2.
 - MySQL 8.x yang sedang berjalan.
 - Git.
@@ -186,15 +187,55 @@ Di laptop Ryan, email dan password akun demo sudah terisi otomatis di halaman lo
 
 Untuk mengaktifkan di laptop sendiri, tambahkan `LOCAL_DEMO_LOGIN=true`, `LOCAL_DEMO_EMAIL` dan `LOCAL_DEMO_PASSWORD` di `.env` dengan akun petugas yang sudah dibuat. Jalankan `php artisan optimize:clear` setelah mengubahnya. Fitur ini hanya mengisi form ketika `APP_ENV=local` dan pengunjung datang dari loopback laptop. Mode production dan pengunjung dari luar laptop tetap menerima form kosong. Menonaktifkan: `LOCAL_DEMO_LOGIN=false`.
 
+### Windows: Laragon atau XAMPP + artisan serve
+
+Cara praktis untuk teman kelompok: jalankan **MySQL lewat Laragon/XAMPP**, lalu jalankan Laravel lewat terminal VS Code. Apache boleh tetap mati bila memakai artisan serve.
+
+1. Pastikan `php -v` di terminal VS Code menunjukkan **PHP 8.4**. Aktifkan ekstensi **GD**, **pdo_mysql**, **bcmath**, dan ekstensi Laravel lainnya di php.ini yang dipakai PHP terminal. Cek `php --ini` dan `php -m`.
+2. Nyalakan MySQL dari Laragon/XAMPP. Sesuaikan DB_PORT, DB_USERNAME, dan DB_PASSWORD di .env milikmu. Jangan menganggap password MySQL semua laptop sama.
+3. Ikuti langkah clone, composer install, .env, database, key, migrate --seed, dan pembuatan akun petugas di atas.
+4. Dari folder proyek di terminal VS Code:
+
+```powershell
+php artisan optimize:clear
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+5. Buka **http://127.0.0.1:8000** dan biarkan terminal tetap berjalan. Untuk berhenti: `Ctrl+C`.
+6. Jika mengubah kode PHP/Blade/CSS, muat ulang browser. Setelah pull dependency baru jalankan `composer install`; setelah pull migrasi baru jalankan `php artisan migrate`.
+
+Jika Laragon/XAMPP memakai virtual host dengan Document Root ke **public/**, artisan serve tidak wajib. Jangan menjalankan `composer local` yang memakai shell Bash sebagai langkah utama Windows; gunakan perintah artisan di atas.
+
 ## 7. Cara memakai aplikasi
 
 1. Login petugas, buka **Layanan** jika perlu mengubah tarif.
 2. Buka **Order → Terima order**. Isi pelanggan, telepon, layanan, dan berat atau jumlah item.
-3. Simpan, lalu bagikan **kode order** atau tautan lacak di nota ke pelanggan.
-4. Majukan status satu tahap sesuai proses laundry.
-5. Setelah uang diterima, tekan **Catat sudah dibayar**. Tombol ini hanya mencatat pembayaran; tidak terhubung ke payment gateway.
-6. Setelah siap dan lunas, majukan status ke **DIAMBIL**. Order kemudian terkunci.
-7. Buka **Laporan** dan pilih tanggal pembayaran untuk melihat pemasukan hari itu.
+3. Simpan, lalu klik **Cetak struk / QR** pada halaman detail order.
+4. Struk menampilkan nama, kontak, layanan, berat aktual/tagihan atau jumlah item, tarif dasar, subtotal, tambahan express 50%, total, pembayaran, estimasi selesai, kode order, dan **QR/tautan langsung ke pelacakan**.
+5. Klik **Cetak / simpan PDF** untuk mencetak ke kertas 80 mm/A4 atau memilih **Save as PDF**. Matikan header/footer browser. Printer fisik belum diuji; sesuaikan ukuran kertas di dialog printer. Browser dalam aplikasi tertentu tidak menampilkan dialog cetak; jika itu terjadi, buka alamat struk di Chrome/Edge/Brave/Safari.
+6. Berikan struk atau file PDF ke pelanggan. Mereka cukup scan QR, tanpa mencatat kode atau login. Tombol **Salin tautan** juga tersedia; pada browser HTTP yang membatasi clipboard, isian akan dipilih agar bisa disalin dengan Ctrl+C/Cmd+C.
+7. Majukan status sesuai proses laundry. Ketika uang diterima, tekan **Catat sudah dibayar** dan konfirmasikan. Tombol ini hanya mencatat pembayaran, bukan payment gateway.
+8. Setelah cucian siap dan lunas, konfirmasikan penyerahan ke **DIAMBIL**. Cocokkan identitas pelanggan oleh petugas; QR hanya untuk melacak, bukan bukti identitas. Order kemudian terkunci.
+9. Buka **Laporan** dan pilih tanggal pembayaran untuk melihat pemasukan hari itu.
+
+### QR, alamat web, dan privasi
+
+QR dibuat oleh aplikasi dengan `endroid/qr-code`, tanpa mengirimkan kode pelanggan ke API QR pihak ketiga. QR hanya berisi tautan pelacakan, bukan nomor telepon, nama, atau catatan. Halaman struk berisi detail pribadi dan hanya bisa dibuka petugas yang login; respons diberi `Cache-Control: private, no-store`. Pelacakan publik tetap tidak menampilkan data kontak.
+
+Alamat QR dibentuk dari **APP_URL di .env**, bukan Host header pengunjung:
+
+- FlyEnv Ryan: `APP_URL=http://cucikilat.test`.
+- Laragon/XAMPP + artisan serve: `APP_URL=http://127.0.0.1:8000`.
+- Server untuk pelanggan: `APP_URL=https://domain-yang-bisa-diakses-pelanggan`.
+
+**Domain .test, localhost, dan 127.0.0.1 tidak dapat dibuka dari HP pelanggan.** QR lokal berguna untuk demo laptop. Untuk pemakaian pelanggan, deploy ke alamat yang dapat diakses, atur APP_URL, jalankan `php artisan optimize:clear`, dan cetak ulang struk. QR yang sudah tercetak tetap menyimpan alamat lama.
+
+### Pengamanan order tambahan
+
+- Form order memiliki UUID submission key dengan indeks unik database. Kirim ulang form yang sama akan kembali ke order yang sama, bukan membuat tagihan/order baru. Tidak perlu mengisi field ini secara manual.
+- Layanan yang diarsipkan tidak bisa dipilih untuk order baru; nota lama tetap bisa dicetak.
+- Ada konfirmasi sebelum pembayaran dan pengambilan agar tombol tidak mudah terpencet tanpa sengaja.
+- Nilai uang dan berat tetap dihitung di server; struk memakai snapshot tarif order, bukan harga layanan terbaru.
 
 ## 8. Pull update dari teman
 
@@ -239,7 +280,7 @@ composer test
 
 Pastikan `DB_DATABASE=cucikilat_test`. Test memakai `RefreshDatabase` dan mengelola ulang tabel pada database testing. Jangan arahkan database testing ke data aplikasi.
 
-Saat ini ada **30 kasus test**, termasuk minimum 2 kg, batas pembulatan 0,5 kg, surcharge express, estimasi reguler/express, harga satuan, penolakan berat nol, penguncian order DIAMBIL, urutan status, pembayaran, laporan harian, layanan, login, pelacakan tanpa data pribadi, escaping HTML, dan respons health 200/503.
+Saat ini ada **42 kasus test**, termasuk minimum 2 kg, batas pembulatan 0,5 kg, surcharge express, estimasi reguler/express, harga satuan, penolakan berat nol, penguncian order DIAMBIL, urutan status, pembayaran, laporan harian, layanan, login, pelacakan tanpa data pribadi, escaping HTML, dan respons health 200/503.
 
 Untuk laporan JUnit bila diperlukan tim QA:
 
@@ -315,3 +356,23 @@ tests/Feature/         Test fitur dan aturan bisnis
 | `419 Page Expired` | Muat ulang form; pastikan cookie dan sesi aktif. |
 | Belum bisa login | Buat akun lewat `php artisan cucikilat:admin email@contoh.test`. |
 | Clone repo ditolak | Pastikan pemilik repo sudah menambahkan akun GitHub kamu sebagai collaborator. |
+
+## Pencocokan dengan PDF tugas K06
+
+Acuan: Panduan Tugas Besar 1, halaman 3 (aplikasi) dan halaman 7 (K06 CuciKilat).
+
+| Ketentuan | Implementasi / bukti |
+| --- | --- |
+| CRUD layanan reguler, express, satuan | Halaman Layanan, tambah/edit/arsip; test perubahan tarif dan arsip. |
+| Buat order dengan berat dan layanan | Form order, perhitungan server, dan nota; layanan satuan memakai jumlah item sebagai keputusan tambahan. |
+| Pelacakan status dengan kode order | /lacak, riwayat status, QR dan tautan langsung dari struk. |
+| Laporan pendapatan harian | /admin/report berdasarkan pembayaran yang dicatat, tanggal WIB. |
+| Pembulatan ke atas per 0,5 kg, minimum 2 kg | Kasus batas 0,2; 2; 2,001; 2,5; 2,501 kg diuji. |
+| Express +50%, estimasi 1 hari; reguler 3 hari | Perhitungan dan tanggal selesai diuji, rincian dicetak di struk. |
+| Order sudah diambil tidak dapat diubah | Semua endpoint mutasi menolak DIAMBIL; nota tetap dapat dibaca/cetak ulang. |
+| Database, migrasi, seeder contoh | MySQL, migration layanan/order, seeder layanan yang aman dijalankan ulang. |
+| GET /health: HTTP 200 dan status database | Respons connected; HTTP 503 ketika database gagal, keduanya diuji. |
+| Minimal 5 test, minimal 2 aturan bisnis | 42 test saat fitur struk ditambahkan; lihat composer test untuk jumlah terbaru. |
+| Tantangan Lint sebelum Test di container Jenkins | composer lint tersedia; Dockerfile/Jenkinsfile dan bukti merah–hijau belum dibuat. |
+
+Struk, QR, salin tautan, konfirmasi transaksi, dan pencegahan order ganda adalah fitur tambahan untuk memudahkan penggunaan. Ini tidak menggantikan bukti container, pipeline, kolaborasi, laporan PDF, dan demo yang tetap perlu diselesaikan kelompok.

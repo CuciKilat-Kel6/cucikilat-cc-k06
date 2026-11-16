@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Services\OrderPricing;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,12 +45,29 @@ class LaundryController extends Controller
 
     public function store(Request $request, OrderPricing $pricing): RedirectResponse
     {
-        $request->validate(['service_id' => 'required|integer|exists:services,id']);
-        $order = DB::transaction(function () use ($request, $pricing) {
-            $service = Service::lockForUpdate()->findOrFail($request->service_id);
+        $request->validate(['submission_key' => 'required|uuid']);
+        try {
+            $order = DB::transaction(function () use ($request, $pricing) {
+                $existing = LaundryOrder::where('submission_key', $request->submission_key)->first();
+                if ($existing) {
+                    return $existing;
+                }
+                $request->validate(['service_id' => 'required|integer|exists:services,id,deleted_at,NULL']);
+                $service = Service::lockForUpdate()->findOrFail($request->service_id);
 
-            return LaundryOrder::create(array_merge($this->pricedData($request, $service, $pricing, now()), ['code' => 'CK-'.strtoupper(Str::random(12)), 'status' => 'DITERIMA', 'history' => [['status' => 'DITERIMA', 'at' => now()->toIso8601String()]]]));
-        });
+                return LaundryOrder::create(array_merge($this->pricedData($request, $service, $pricing, now()), [
+                    'submission_key' => $request->submission_key,
+                    'code' => 'CK-'.strtoupper(Str::random(12)),
+                    'status' => 'DITERIMA',
+                    'history' => [['status' => 'DITERIMA', 'at' => now()->toIso8601String()]],
+                ]));
+            });
+        } catch (UniqueConstraintViolationException $exception) {
+            $order = LaundryOrder::where('submission_key', $request->submission_key)->first();
+            if (! $order) {
+                throw $exception;
+            }
+        }
 
         return redirect()->route('orders.show', $order)->with('success', 'Order masuk! Kode lacak: '.$order->code);
     }
@@ -65,7 +83,7 @@ class LaundryController extends Controller
             $locked = LaundryOrder::lockForUpdate()->findOrFail($order->id);
             abort_if($locked->status === 'DIAMBIL', 409, 'Order yang sudah diambil tidak dapat diubah.');
             abort_if($locked->paid_at !== null, 409, 'Order sudah dibayar. Harga dan detail order dikunci.');
-            $request->validate(['service_id' => 'required|integer|exists:services,id']);
+            $request->validate(['service_id' => 'required|integer|exists:services,id,deleted_at,NULL']);
             $service = Service::lockForUpdate()->findOrFail($request->service_id);
             $locked->update($this->pricedData($request, $service, $pricing, $locked->created_at));
         });

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LaundryController;
+use App\Http\Controllers\ReceiptController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin', [LaundryController::class, 'dashboard'])->name('dashboard');
     Route::get('/admin/orders/create', [LaundryController::class, 'form'])->name('orders.create');
     Route::post('/admin/orders', [LaundryController::class, 'store'])->name('orders.store');
+    Route::get('/admin/orders/{order}/receipt', ReceiptController::class)->name('orders.receipt');
     Route::get('/admin/orders/{order}', [LaundryController::class, 'show'])->name('orders.show');
     Route::get('/admin/orders/{order}/edit', [LaundryController::class, 'form'])->name('orders.edit');
     Route::put('/admin/orders/{order}', [LaundryController::class, 'update'])->name('orders.update');

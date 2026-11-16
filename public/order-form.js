@@ -17,3 +17,9 @@ if (service) {
  }
  [service,weight,quantity].forEach(el=>el.addEventListener('input',estimate)); estimate();
 }
+
+const orderForm = service?.closest('form');
+if (orderForm) {
+ orderForm.addEventListener('submit', () => { const button = orderForm.querySelector('button[type="submit"], button:not([type])'); if (button) { button.disabled = true; button.textContent = 'Menyimpan…'; } });
+ window.addEventListener('pageshow', () => { const button = orderForm.querySelector('button[type="submit"], button:not([type])'); if (button) { button.disabled = false; button.textContent = orderForm.querySelector('[name="_method"]') ? 'Simpan perubahan ↗' : 'Catat order ↗'; } });
+}

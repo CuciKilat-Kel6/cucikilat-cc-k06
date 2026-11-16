@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -21,7 +22,7 @@ class LaundryTest extends TestCase
 
     private function payload(Service $service, array $extra = []): array
     {
-        return array_merge(['customer_name' => 'Ryan', 'phone' => '081234567890', 'service_id' => $service->id, 'weight' => '2.1', 'notes' => 'Pisah warna'], $extra);
+        return array_merge(['submission_key' => (string) Str::uuid(), 'customer_name' => 'Ryan', 'phone' => '081234567890', 'service_id' => $service->id, 'weight' => '2.1', 'notes' => 'Pisah warna'], $extra);
     }
 
     public static function weights(): array
