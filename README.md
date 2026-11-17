@@ -5,7 +5,7 @@
 ## Demo untuk Container / DevOps
 
 - Versi normal: branch `main`.
-- Versi sengaja gagal lint: branch `codex/demo-lint-error`.
+- Versi sengaja gagal lint: branch `demo-lint-error`.
 - Kesalahan: spasi pada baris konversi berat sengaja dihilangkan. Sintaks PHP tetap valid; perhitungan harga dan tampilan web tidak berubah.
 - Gunakan job Jenkins demo yang checkout branch ini. Jika job tetap checkout main, kesalahan branch ini tidak akan terbaca.
 - Jalankan `composer lint` **di dalam container** pada stage **sebelum Test**. Exit code gagal harus diteruskan ke Jenkins; jangan diberi `|| true`, diabaikan, atau diubah menjadi sukses.
@@ -25,7 +25,7 @@
 
 ```bash
 git fetch origin
-git switch --track origin/codex/demo-lint-error
+git switch --track origin/demo-lint-error
 composer install
 composer lint
 ```
