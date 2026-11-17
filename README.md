@@ -1,3 +1,55 @@
+> **BRANCH DEMO LINT GAGAL — bukan versi untuk di-merge ke main.**
+>
+> Website dan aturan bisnis sama dengan versi normal. Satu baris di `app/Services/OrderPricing.php` sengaja dibuat tidak sesuai format Pint agar quality gate berhenti di stage Lint.
+
+## Demo untuk Container / DevOps
+
+- Versi normal: branch `main`.
+- Versi sengaja gagal lint: branch `codex/demo-lint-error`.
+- Kesalahan: spasi pada baris konversi berat sengaja dihilangkan. Sintaks PHP tetap valid; perhitungan harga dan tampilan web tidak berubah.
+- Gunakan job Jenkins demo yang checkout branch ini. Jika job tetap checkout main, kesalahan branch ini tidak akan terbaca.
+- Jalankan `composer lint` **di dalam container** pada stage **sebelum Test**. Exit code gagal harus diteruskan ke Jenkins; jangan diberi `|| true`, diabaikan, atau diubah menjadi sukses.
+- Bukti merah–hijau tetap harus diambil dari Jenkins kelompok sendiri. Branch ini menyiapkan input demo, bukan bukti bahwa pipeline container sudah berjalan.
+
+### Hasil verifikasi lokal
+
+| Pemeriksaan | Hasil |
+| --- | --- |
+| Sintaks PHP | Valid, website tetap dapat dijalankan. |
+| Test aplikasi | 42 test lulus, 155 assertions. |
+| composer lint pada branch ini | Sengaja gagal, exit code 1. |
+| Setelah baris diformat dengan Pint | Lint lulus, exit code 0. |
+| Jenkins/container | Harus dibuktikan pada pipeline kelompok; belum dijalankan dari branch ini. |
+
+### Menjalankan versi gagal
+
+```bash
+git fetch origin
+git switch --track origin/codex/demo-lint-error
+composer install
+composer lint
+```
+
+`composer lint` sengaja gagal. Untuk menjalankan webnya, ikuti setup .env, MySQL, migrasi/seeder dan akun petugas di panduan bawah; gunakan database demo sendiri jika diperlukan. Laravel tetap bisa dijalankan lewat `php artisan serve`.
+
+### Membuat versi perbaikan
+
+Supaya branch demo gagal tetap tersedia, buat branch baru darinya:
+
+```bash
+git switch -c demo/perbaikan-lint
+php vendor/bin/pint app/Services/OrderPricing.php
+composer lint
+composer test
+git add app/Services/OrderPricing.php
+git commit -m "Perbaiki format kode agar quality gate lint lolos"
+git push -u origin demo/perbaikan-lint
+```
+
+Setelah memperbaiki format, jalankan pipeline untuk commit perbaikan dan ambil bukti build hijau. Jangan merge kesalahan yang disengaja ke main.
+
+---
+
 # ⚡ CuciKilat — Kelompok 6
 
 Website laundry untuk Tugas Besar 1 Cloud Computing, studi kasus **K06 — CuciKilat**. Dibuat pakai **Laravel 13, PHP 8.4, MySQL, dan Blade**. Tema tampilan retro kuning, dengan logo petir dan nota laundry.

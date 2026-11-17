@@ -11,7 +11,7 @@ class OrderPricing
         if ($service->type === 'satuan') {
             return ['weight_grams' => null, 'billable_grams' => null, 'quantity' => $quantity, 'total' => $service->price * $quantity];
         }
-        $grams = (int) bcmul($weight, '1000', 0);
+        $grams=(int)bcmul($weight,'1000',0);
         $billable = max(2000, intdiv($grams + 499, 500) * 500);
         $numerator = $billable * $service->price * ($service->type === 'express' ? 3 : 2);
 
