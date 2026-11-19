@@ -1,0 +1,49 @@
+services:
+  app:
+    image: alifiamareta9/cucikilat-app:latest
+    container_name: cucikilat_app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKZvp6fiiM10=
+      - DB_CONNECTION=mysql
+      - DB_HOST=cucikilat_db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-cucikilat}
+      - DB_USERNAME=${DB_USERNAME:-cucikilat}
+      - DB_PASSWORD=${DB_PASSWORD:-cucikilat_pass}
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: cucikilat_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: cucikilat
+      MYSQL_USER: cucikilat
+      MYSQL_PASSWORD: cucikilat_pass
+      MYSQL_ROOT_PASSWORD: root_secret_pass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_secret_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db_data:
+
+networks:
+  backend:
+    internal: false
