@@ -1,4 +1,4 @@
-# Stage 1: Build dependencies & Vendor
+﻿# Stage 1: Build dependencies & Vendor
 FROM php:8.4-cli AS vendor
 WORKDIR /app
 
@@ -57,10 +57,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -s 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf \
-    && sed -ri -s 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
-
-RUN a2enmod rewrite
+RUN sed -ri "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/000-default.conf \
+    && printf "ServerName localhost\n" > /etc/apache2/conf-available/servername.conf \
+    && printf "<Directory /var/www/html/public>\n\tOptions Indexes FollowSymLinks\n\tAllowOverride All\n\tRequire all granted\n</Directory>\n" > /etc/apache2/conf-available/laravel-public.conf \
+    && a2enmod rewrite \
+    && a2enconf servername laravel-public
 
 COPY --from=vendor /app/vendor /var/www/html/vendor
 COPY . /var/www/html
