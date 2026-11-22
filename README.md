@@ -121,13 +121,13 @@ Pastikan PHP terminal juga PHP 8.4, bukan versi lama dari instalasi lain.
 ## 2. Clone repo pertama kali
 
 ```bash
-git clone https://github.com/byryanalfin/cucikilat-cc-k06.git
+git clone https://github.com/CuciKilat-Kel6/cucikilat-cc-k06.git
 cd cucikilat-cc-k06
 composer install
 cp .env.example .env
 ```
 
-Repo private: login GitHub dan pastikan sudah diundang sebagai collaborator. Jika menggunakan GitHub CLI, jalankan `gh auth login` terlebih dahulu.
+Repo ini public dan dimiliki organization CuciKilat-Kel6. Clone tidak memerlukan undangan; push memerlukan akses write. Jika menggunakan GitHub CLI, jalankan `gh auth login` terlebih dahulu.
 
 Untuk Windows PowerShell, `cp` juga tersedia sebagai alias `Copy-Item`.
 
