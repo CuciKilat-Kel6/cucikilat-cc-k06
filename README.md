@@ -69,13 +69,13 @@ Pastikan PHP terminal juga PHP 8.4, bukan versi lama dari instalasi lain.
 ## 2. Clone repo pertama kali
 
 ```bash
-git clone https://github.com/byryanalfin/cucikilat-cc-k06.git
+git clone https://github.com/CuciKilat-Kel6/cucikilat-cc-k06.git
 cd cucikilat-cc-k06
 composer install
 cp .env.example .env
 ```
 
-Repo private: login GitHub dan pastikan sudah diundang sebagai collaborator. Jika menggunakan GitHub CLI, jalankan `gh auth login` terlebih dahulu.
+Repo ini public dan sekarang dimiliki organization **CuciKilat-Kel6**, jadi bisa dibaca dan di-clone tanpa undangan. Untuk push/PR sebagai anggota kelompok, gunakan akun GitHub yang sudah diberi akses write. Jika memakai GitHub CLI, jalankan `gh auth login` terlebih dahulu.
 
 Untuk Windows PowerShell, `cp` juga tersedia sebagai alias `Copy-Item`.
 
@@ -237,6 +237,18 @@ Alamat QR dibentuk dari **APP_URL di .env**, bukan Host header pengunjung:
 - Ada konfirmasi sebelum pembayaran dan pengambilan agar tombol tidak mudah terpencet tanpa sengaja.
 - Nilai uang dan berat tetap dihitung di server; struk memakai snapshot tarif order, bukan harga layanan terbaru.
 
+### Untuk teman yang sudah clone sebelum pindah organization
+
+Riwayat commit dan branch tetap ikut saat repo dipindah. Cukup ganti URL origin pada folder proyek yang sudah ada, tanpa clone ulang:
+
+```bash
+git remote set-url origin https://github.com/CuciKilat-Kel6/cucikilat-cc-k06.git
+git remote -v
+git fetch origin
+```
+
+Repo utama kelompok: **https://github.com/CuciKilat-Kel6/cucikilat-cc-k06**. Untuk konfigurasi Jenkins, gunakan URL SCM baru ini. Pengelola repo dengan role Admin dapat mengatur webhook melalui **Settings → Webhooks**; pemilik organization tetap mengatur keanggotaan dan kebijakan organization.
+
 ## 8. Pull update dari teman
 
 Simpan pekerjaanmu melalui commit di branch sendiri terlebih dahulu. Jangan pull dengan perubahan yang belum disimpan jika bisa menimbulkan konflik.
@@ -355,7 +367,7 @@ tests/Feature/         Test fitur dan aturan bisnis
 | Port 8000 sudah dipakai | Jalankan `php artisan serve --port=8001`, buka port 8001. |
 | `419 Page Expired` | Muat ulang form; pastikan cookie dan sesi aktif. |
 | Belum bisa login | Buat akun lewat `php artisan cucikilat:admin email@contoh.test`. |
-| Clone repo ditolak | Pastikan pemilik repo sudah menambahkan akun GitHub kamu sebagai collaborator. |
+| Clone/push ditolak | Gunakan URL organization yang baru. Clone repo public tidak memerlukan undangan; push tetap memerlukan akun dengan akses write. |
 
 ## Pencocokan dengan PDF tugas K06
 
