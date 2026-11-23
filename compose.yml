@@ -1,21 +1,24 @@
-services:
+﻿services:
   app:
-    image: alifiamareta9/cucikilat-app:latest
+    image: thonifasya/cucikilat-app:${IMAGE_TAG:-latest}
     container_name: cucikilat_app
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "${APP_PORT:-8081}:80"
+    command: >
+      sh -c "php artisan migrate --force && php artisan db:seed --force && apache2-foreground"
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_KEY=base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKZvp6fiiM10=
-      - DB_CONNECTION=mysql
-      - DB_HOST=cucikilat_db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-cucikilat}
-      - DB_USERNAME=${DB_USERNAME:-cucikilat}
-      - DB_PASSWORD=${DB_PASSWORD:-cucikilat_pass}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: ${DB_CONNECTION:-mysql}
+      DB_HOST: ${DB_HOST:-cucikilat_db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     networks:
+      - frontend
       - backend
     depends_on:
       db:
@@ -26,16 +29,16 @@ services:
     container_name: cucikilat_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: cucikilat
-      MYSQL_USER: cucikilat
-      MYSQL_PASSWORD: cucikilat_pass
-      MYSQL_ROOT_PASSWORD: root_secret_pass
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_secret_pass"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} || mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -45,5 +48,6 @@ volumes:
   db_data:
 
 networks:
+  frontend:
   backend:
-    internal: false
+    internal: true
