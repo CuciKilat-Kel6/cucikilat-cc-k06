@@ -33,4 +33,5 @@ Thumbs.db
 
 .env.*
 !.env.example
+!.env.docker.example
 !.env.testing.example

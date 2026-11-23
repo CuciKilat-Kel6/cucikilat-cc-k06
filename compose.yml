@@ -1,26 +1,34 @@
-﻿services:
+services:
   app:
-    image: alifiamareta9/cucikilat-app:latest
+    image: thonifasya/cucikilat-app:${IMAGE_TAG:-latest}
     container_name: cucikilat_app
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "${APP_PORT:-8081}:80"
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_KEY=${APP_KEY:-base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKZvp6fiiM10=}
-      - DB_CONNECTION=mysql
-      - DB_HOST=cucikilat_db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-cucikilat}
-      - DB_USERNAME=${DB_USERNAME:-cucikilat}
-      - DB_PASSWORD=${DB_PASSWORD:-cucikilat_pass}
+      APP_NAME: CuciKilat
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY:?APP_KEY wajib diisi di file .env}
+      APP_URL: ${APP_URL:-http://localhost:8081}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: ${DB_DATABASE:-cucikilat}
+      DB_USERNAME: ${DB_USERNAME:-cucikilat}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD wajib diisi di file .env}
     networks:
       - frontend
       - backend
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/health') === false ? 1 : 0);"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   db:
     image: mysql:8.0
@@ -29,17 +37,17 @@
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-cucikilat}
       MYSQL_USER: ${DB_USERNAME:-cucikilat}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-cucikilat_pass}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_secret_pass}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD wajib diisi di file .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD wajib diisi di file .env}
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root_secret_pass}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
       start_period: 30s
 
 volumes:

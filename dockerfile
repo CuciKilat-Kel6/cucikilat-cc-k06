@@ -1,4 +1,4 @@
-﻿# Stage 1: Build dependencies & Vendor
+# Stage 1: Build dependencies & Vendor
 FROM php:8.4-cli AS vendor
 WORKDIR /app
 
@@ -59,7 +59,7 @@ RUN apt-get update && apt-get install -y \
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/000-default.conf \
     && printf "ServerName localhost\n" > /etc/apache2/conf-available/servername.conf \
-    && printf "<Directory /var/www/html/public>\n\tOptions Indexes FollowSymLinks\n\tAllowOverride All\n\tRequire all granted\n</Directory>\n" > /etc/apache2/conf-available/laravel-public.conf \
+    && printf "<Directory /var/www/html/public>\n\tOptions -Indexes +FollowSymLinks\n\tAllowOverride All\n\tRequire all granted\n</Directory>\n" > /etc/apache2/conf-available/laravel-public.conf \
     && a2enmod rewrite \
     && a2enconf servername laravel-public
 
@@ -68,4 +68,10 @@ COPY . /var/www/html
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Entrypoint: migrasi + seeder otomatis sebelum Apache berjalan
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 80
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["apache2-foreground"]
