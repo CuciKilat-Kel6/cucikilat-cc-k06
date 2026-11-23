@@ -4,11 +4,13 @@ pipeline {
   options {
     skipDefaultCheckout(true)
     buildDiscarder(logRotator(numToKeepStr: '10'))
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 40, unit: 'MINUTES')
   }
 
   environment {
     IMAGE_REPO = 'thonifasya/cucikilat-app'
+    IMAGE_TAG  = "${BUILD_NUMBER}"
+    SMOKE_URL  = 'http://localhost:8081/health'
     TEST_IMAGE = "cucikilat-test:${BUILD_NUMBER}"
     TEST_NET   = "tubes-test-${BUILD_NUMBER}"
     TEST_DB    = "tubes-db-${BUILD_NUMBER}"
@@ -47,7 +49,7 @@ pipeline {
 
     stage('Build Image') {
       steps {
-        bat 'docker build --target production -t %IMAGE_REPO%:%BUILD_NUMBER% -t %IMAGE_REPO%:latest -f dockerfile .'
+        bat 'docker build --target production -t %IMAGE_REPO%:%IMAGE_TAG% -t %IMAGE_REPO%:latest -f dockerfile .'
       }
     }
 
@@ -55,9 +57,32 @@ pipeline {
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub-cucikilat', usernameVariable: 'DH_USER', passwordVariable: 'DH_TOKEN')]) {
           bat 'echo %DH_TOKEN%| docker login -u %DH_USER% --password-stdin'
-          bat 'docker push %IMAGE_REPO%:%BUILD_NUMBER%'
+          bat 'docker push %IMAGE_REPO%:%IMAGE_TAG%'
           bat 'docker push %IMAGE_REPO%:latest'
         }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        withCredentials([file(credentialsId: 'cucikilat-env', variable: 'ENV_FILE')]) {
+          bat 'docker compose -p cucikilat --env-file "%ENV_FILE%" pull'
+          bat 'docker compose -p cucikilat --env-file "%ENV_FILE%" up -d --remove-orphans'
+        }
+      }
+    }
+
+    stage('Smoke Test') {
+      steps {
+        timeout(time: 4, unit: 'MINUTES') {
+          waitUntil {
+            script {
+              def rc = bat(returnStatus: true, script: '@curl -fsS --max-time 5 %SMOKE_URL%')
+              return rc == 0
+            }
+          }
+        }
+        bat 'curl -fsS --max-time 5 %SMOKE_URL% | findstr /C:ok'
       }
     }
   }
@@ -69,7 +94,10 @@ pipeline {
       bat(returnStatus: true, script: '@docker rmi %TEST_IMAGE%')
       bat(returnStatus: true, script: '@docker logout')
     }
-    success { echo 'Pipeline sukses' }
-    failure { echo 'Pipeline gagal, cek stage yang merah' }
+    success { echo 'Pipeline sukses: aplikasi ter-deploy dan lolos smoke test' }
+    failure {
+      echo 'Pipeline gagal, cek stage yang merah'
+      bat(returnStatus: true, script: '@docker logs --tail 80 cucikilat_app')
+    }
   }
 }
