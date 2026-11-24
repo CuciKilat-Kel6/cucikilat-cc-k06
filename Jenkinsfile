@@ -10,7 +10,7 @@ pipeline {
   environment {
     IMAGE_REPO = 'thonifasya/cucikilat-app'
     IMAGE_TAG  = "${BUILD_NUMBER}"
-    SMOKE_URL  = 'http://localhost:8081/health'
+    SMOKE_URL  = 'http://127.0.0.1:8081/health'
     TEST_IMAGE = "cucikilat-test:${BUILD_NUMBER}"
     TEST_NET   = "tubes-test-${BUILD_NUMBER}"
     TEST_DB    = "tubes-db-${BUILD_NUMBER}"
